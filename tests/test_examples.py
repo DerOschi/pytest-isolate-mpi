@@ -40,6 +40,9 @@ from pytest_isolate_mpi import _plugin
         pytest.param("test_omp_num_threads", {"passed": 3}, [], id="test_omp_num_threads"),
         pytest.param("test_unpicklable_session_fixture", {"passed": 4}, [], id="test_unpicklable_session_fixture"),
         pytest.param("test_tmp_path_factory_cached", {"passed": 4}, [], id="test_tmp_path_factory_cached"),
+        pytest.param(
+            "test_mpi_parametrization_without_fixture", {"passed": 5}, [], id="test_mpi_parametrization_without_fixture"
+        ),
     ],
 )
 def test_outcomes(pytester, test, outcomes, lines):
@@ -94,6 +97,9 @@ def test_vscode_nodeid_remains_unchanged(monkeypatch, tmp_path):
         pytest.param("test_mpi_tmp_path", {"passed": 1}, [], id="test_mpi_tmp_path"),
         pytest.param("test_no_mpi", {"passed": 1}, [], id="test_no_mpi"),
         pytest.param("test_session_scoped_fixtures", {"passed": 8, "failed": 16}, [], id="test_cache"),
+        pytest.param(
+            "test_mpi_parametrization_without_fixture", {"failed": 2}, [], id="test_mpi_parametrization_without_fixture"
+        ),
     ],
 )
 def test_outcomes_no_isolation(pytester, test, outcomes, lines):

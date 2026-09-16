@@ -30,9 +30,8 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
     "check-manifest",
-    "Sphinx<7",
-    "sphinx-rtd-theme<2",
-    "docutils<0.19",
+    "Sphinx>=7,<10",
+    "furo",
     "pylint",
     "pytest-cov",
     "wheel",
@@ -66,7 +65,7 @@ line-length = 120
 max-line-length = 120
 extension-pkg-whitelist = "mpi4py.MPI"
 recursive = true
-ignore = ["venv", "build", "dist"]
+ignore = [".venv", "venv", "build", "dist"]
 disable = [
     "missing-class-docstring",
     "missing-function-docstring",
@@ -74,6 +73,7 @@ disable = [
     "fixme",
 ]
 good-names-rgxs = "^[_a-z][_a-z0-9]?$"
+max-attributes = 12
 
 
 [tool.distutils.bdist_wheel]

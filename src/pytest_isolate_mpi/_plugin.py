@@ -31,6 +31,7 @@ from ._constants import OMP_NUM_THREADS_ENV
 from ._fixturecache import _load_fixture_result
 from ._fixturecache import _cache_fixture_result
 from .fixtures import comm_fixture  # pylint: disable=unused-import
+from .fixtures import mpi_ranks_fixture  # pylint: disable=unused-import
 from .fixtures import mpi_tmpdir_fixture  # pylint: disable=unused-import
 from .fixtures import mpi_tmp_path_fixture  # pylint: disable=unused-import
 from ._subsession import assemble_sub_pytest_cmd
@@ -112,19 +113,13 @@ class MPIPlugin:
             mpi_command_line_args=config.getini("mpi_command_line_args"),
         )
 
-        # double check whether MPI environment variables are residing in the forked env
-        if not self._is_forked_mpi_environment:
-            for env in MPI_ENV_HINTS:
-                if os.getenv(env):
-                    pytest.exit("forked MPI tests cannot be run in an MPI environment", pytest.ExitCode.USAGE_ERROR)
-
     def pytest_generate_tests(self, metafunc):
         """Extend the marker @pytest.mark.mpi such that we have parametrization of the tests w.r.t. # ranks."""
         for mark in metafunc.definition.iter_markers(name="mpi"):
             threads = mark.kwargs.get("threads")
 
             if threads is not None:
-                if type(threads) is not int or threads <= 0:
+                if not isinstance(threads, int) or isinstance(threads, bool) or threads <= 0:
                     pytest.exit(
                         "Number of OpenMP threads must be a positive integer",
                         pytest.ExitCode.USAGE_ERROR,
@@ -145,7 +140,8 @@ class MPIPlugin:
                     if not isinstance(rank, int) or rank <= 0:
                         pytest.exit("Number of MPI ranks must be a positive integer", pytest.ExitCode.USAGE_ERROR)
 
-                metafunc.parametrize("mpi_ranks", list_of_ranks)  # maybe make this scope='session'?
+                if "mpi_ranks" in metafunc.fixturenames:
+                    metafunc.parametrize("mpi_ranks", list_of_ranks)
 
     def pytest_runtest_setup(self, item):
         """
@@ -172,7 +168,7 @@ class MPIPlugin:
     def pytest_runtest_protocol(self, item):
         if self._is_forked_mpi_environment:
             reports = self._mpi_runtestprococol_inner(item)
-        elif not self._no_mpi_isolation and "mpi_ranks" in item.fixturenames:
+        elif not self._no_mpi_isolation and item.get_closest_marker("mpi"):
             reports = self._mpi_runtestprotocol(item)
         else:
             return None
@@ -213,6 +209,11 @@ class MPIPlugin:
         return reports
 
     def _mpi_runtestprotocol(self, item):  # pylint: disable=too-many-locals,too-many-branches
+        # double check whether MPI environment variables are residing in the forked env
+        if not self._is_forked_mpi_environment:
+            for env in MPI_ENV_HINTS:
+                if os.getenv(env):
+                    pytest.exit("forked MPI tests cannot be run in an MPI environment", pytest.ExitCode.USAGE_ERROR)
         mpi_ranks = 1
         threads = None
 

@@ -3,12 +3,23 @@ Changelog
 
 Version 0.4
 -----------
+
+- The ``mpi_ranks`` test argument is now optional. A new autouse
+  ``mpi_ranks`` fixture provides the number of MPI processes for each
+  test, so MPI tests no longer need to declare this argument when they
+  do not use it. (`#43`_)
+
+- Fixed running non-MPI tests inside an existing MPI environment when
+  ``pytest-isolate-mpi`` is loaded. The nested MPI environment check is
+  now only performed when MPI isolation is actually used. (`#42`_)
+  
 - Fixed VS Code test execution for MPI tests by preventing
   ``vscode_pytest`` from being forwarded to MPI subprocesses and by
   keeping report node IDs stable across MPI ranks. (`#39`_)
 
-- Fixed compatibilty with ``pytest-forked`` so that non-MPI tests can still be
-  executed with ``--forked`` when ``pytest-isolate-mpi`` is installed. (`#38`_)
+- Fixed compatibility with ``pytest-forked`` so that non-MPI tests can
+  still be executed with ``--forked`` when ``pytest-isolate-mpi`` is
+  installed. (`#38`_)
 
 - Compatibility with Pytest >= 9.1 has been restored. Pytest's
   ``tmp_path_factory``, which is no longer picklable since Pytest 9.1, is
@@ -26,6 +37,7 @@ Version 0.4
 
 - The ``mpi`` marker now accepts an optional ``threads`` argument.
   When set, ``OMP_NUM_THREADS`` is configured for each isolated MPI process.
+  (`#37`_)
 
 - Two command line options for the use of independent Python executables
   and Pytest configurations in the main session and subsessions have
@@ -35,15 +47,18 @@ Version 0.4
 
 .. _#33:  https://github.com/dlr-sp/pytest-isolate-mpi/pull/33
 .. _#36:  https://github.com/dlr-sp/pytest-isolate-mpi/pull/36
+.. _#37:  https://github.com/dlr-sp/pytest-isolate-mpi/pull/37
 .. _#38:  https://github.com/dlr-sp/pytest-isolate-mpi/pull/38
 .. _#39:  https://github.com/dlr-sp/pytest-isolate-mpi/pull/39
+.. _#42:  https://github.com/dlr-sp/pytest-isolate-mpi/pull/42
+.. _#43:  https://github.com/dlr-sp/pytest-isolate-mpi/pull/43
 
 Version 0.3
 -----------
 
 - A command line option to disable MPI and/or process isolation has been
-  added. This particularly useful to debug MPI-parallel test cases.
-  (`#24`_)
+  added. This is particularly useful for debugging MPI-parallel test
+  cases. (`#24`_)
 
 - Command line options to set a default test timeout and test timeout
   unit for all MPI-parallel tests have been added. (`#20`_)
